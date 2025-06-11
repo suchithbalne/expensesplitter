@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="A simple and elegant expense splitting calculator for housemates">
+    <meta name="theme-color" content="#4facfe">
+    <title>House Expense Split Calculator</title>
+    <!-- External CSS -->
+    <link rel="stylesheet" href="styles.css">
+    <!-- Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="theme-switch-wrapper">
+        <label class="theme-switch" for="themeSwitch">
+            <input type="checkbox" id="themeSwitch" onchange="toggleTheme()">
+            <span class="slider round">
+                <span class="slider-icons">🌙 ☀️</span>
+            </span>
+        </label>
+    </div>
+    
+    <main class="container">
+        <header class="header">
+            <h1>🏠 House Expense Split Calculator</h1>
+            <p>Easily split expenses among housemates</p>
+        </header>
+
+        <section class="content">
+            <!-- Currency Selection -->
+            <section class="section">
+                <h2>💱 Currency Settings</h2>
+                <div class="currency-section">
+                    <label for="currencySelect">Select Currency:</label>
+                    <select id="currencySelect" class="currency-select" onchange="updateCurrency()">
+                        <option value="$">$ US Dollar (USD)</option>
+                        <option value="₹">₹ Indian Rupee (INR)</option>
+                        <option value="€">€ Euro (EUR)</option>
+                        <option value="£">£ British Pound (GBP)</option>
+                        <option value="¥">¥ Japanese Yen (JPY)</option>
+                        <option value="₽">₽ Russian Ruble (RUB)</option>
+                        <option value="₦">₦ Nigerian Naira (NGN)</option>
+                        <option value="R">R South African Rand (ZAR)</option>
+                    </select>
+                </div>
+            </section>
+
+            <!-- House Members Section -->
+            <section class="section">
+                <h2>👥 House Members</h2>
+                <div class="members-section" id="membersSection">
+                    <div class="member-input">
+                        <input type="text" placeholder="Enter member name" oninput="updateMemberCheckboxes()">
+                        <button class="btn btn-danger" onclick="removeMember(this)" aria-label="Remove member">×</button>
+                    </div>
+                </div>
+                <button class="btn btn-secondary" onclick="addMember()">+ Add Member</button>
+            </section>
+
+            <!-- Add Expense Section -->
+            <section class="section">
+                <h2>💰 Add Expenses</h2>
+                <div class="add-expense-container">
+                    <div class="expense-input-grid">
+                        <div class="form-group">
+                            <label for="expenseAmount">Amount:</label>
+                            <input type="number" id="expenseAmount" class="form-control" placeholder="Enter expense amount" step="0.01" aria-required="true">
+                        </div>
+                        <div class="form-group">
+                            <label for="expenseDescription">Description:</label>
+                            <input type="text" id="expenseDescription" class="form-control" placeholder="What is this expense for?" aria-required="true">
+                        </div>
+                        <div class="form-group">
+                            <label for="expenseDate">Date:</label>
+                            <input type="date" id="expenseDate" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="expenseCategory">Category:</label>
+                            <select id="expenseCategory" class="form-control">
+                                <option value="Food">Food</option>
+                                <option value="Rent">Rent</option>
+                                <option value="Utilities">Utilities</option>
+                                <option value="Entertainment">Entertainment</option>
+                                <option value="Transportation">Transportation</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="members-selection">
+                        <h4>Select Members to Split Between:</h4>
+                        <div class="select-all-container">
+                            <input type="checkbox" id="selectAllMembers" onchange="toggleAllMembers(true)">
+                            <label for="selectAllMembers">Select All Members</label>
+                            <input type="checkbox" id="deselectAllMembers" onchange="toggleAllMembers(false)">
+                            <label for="deselectAllMembers">Deselect All</label>
+                        </div>
+                        <div class="member-checkboxes" id="memberCheckboxes">
+                            <!-- Checkboxes will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="add-btn-container" style="margin-top: 20px;">
+                        <button class="btn btn-primary" onclick="addExpense()">
+                            ➕ Add Expense
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filter Controls -->
+                <div class="filter-controls">
+                    <span class="filter-label">Filter by:</span>
+                    <select id="filterCategory" class="form-control" aria-label="Filter by category">
+                        <option value="all">All Categories</option>
+                        <!-- Categories will be populated by JavaScript -->
+                    </select>
+                    
+                    <select id="filterMember" class="form-control" aria-label="Filter by member">
+                        <option value="all">All Members</option>
+                        <!-- Members will be populated by JavaScript -->
+                    </select>
+                    
+                    <input type="date" id="filterDate" class="form-control" aria-label="Filter by date">
+                    
+                    <button id="clearFilters" class="btn btn-secondary">Clear Filters</button>
+                </div>
+                
+                <div class="expense-list" id="expenseList">
+                    <!-- Added expenses will appear here -->
+                </div>
+            </section>
+
+            <!-- Calculate Button -->
+            <div style="text-align: center; margin: 30px 0;">
+                <button class="btn btn-primary" onclick="calculateSplit()" style="font-size: 1.2rem; padding: 15px 40px;">
+                    🧮 Calculate Split
+                </button>
+                <button class="btn btn-secondary" onclick="clearAll()" style="font-size: 1.2rem; padding: 15px 40px; margin-left: 20px;">
+                    🗑️ Clear All
+                </button>
+            </div>
+
+            <!-- Results Section -->
+            <section class="results" id="results" style="display: none;">
+                <h2>📊 Split Results</h2>
+                <div class="results-grid" id="resultsGrid">
+                    <!-- Results will be populated by JavaScript -->
+                </div>
+                <div class="total-section">
+                    <h3>Total Amount</h3>
+                    <div class="total-amount" id="totalAmount">₹0.00</div>
+                </div>
+                
+                <div class="export-buttons">
+                    <button class="btn btn-secondary" onclick="exportToCSV()">
+                        📊 Export to CSV
+                    </button>
+                </div>
+            </section>
+            
+            <!-- Chart Visualization -->
+            <section class="section">
+                <h2>📈 Expense Visualization</h2>
+                <div class="chart-container">
+                    <canvas id="expenseChart" height="300"></canvas>
+                </div>
+            </section>
+        </section>
+    </main>
+    
+    <!-- Loading Indicator -->
+    <div id="loading" class="loading">
+        <div class="loading-spinner"></div>
+    </div>
+    
+    <footer>
+        <p>&copy; 2025 House Expense Split Calculator | Created with ❤️</p>
+    </footer>
+
+    <!-- External JavaScript -->
+    <script src="script.js"></script>
+
+</body>
+</html>
